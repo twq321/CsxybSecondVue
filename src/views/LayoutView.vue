@@ -2,14 +2,12 @@
   <div class="common-layout">
     <el-container style="height: 100%">
       <el-header class="myheader">
-        <div style="background-color: rgba(0,0,0,0.2);">
+        <div style="display: flex;justify-content:center;align-items: center;">
+          <img :src="require('@/assets/csxyb.png')" alt="logo" style="height: 80px;width:80px;margin-right:10px;">
           长师校园帮后台管理系统
         </div>
-        <div style="background-color: rgba(0,0,0,0.2);">
+        <div>
           管理界面
-        </div>
-        <div style="background-color: rgba(0,0,0,0.2);">
-          数据分析
         </div>
         
           <div class="txname">
@@ -388,7 +386,7 @@ body,
 
 /* 添加样式可视化区域 */
 .el-header {
-  background-color: #409EFF;
+  background-color: #0a79e9;
   color: white;
   text-align: center;
   line-height: 60px;

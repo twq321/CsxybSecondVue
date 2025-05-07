@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <h1 style="padding: 0;margin:0">Adimn用户管理界面</h1> 
-    <el-table :data="filterTableData" style="width: 100%">
+    <el-table :data="tableData" style="width: 100%">
       <el-table-column label="ID" prop="userId" />
       <el-table-column label="头像">
         <template #default="scope">
@@ -143,7 +143,7 @@
   </div> 
 </template>
 <script setup>
-import { computed, ref, reactive,onMounted} from 'vue'
+import {  ref, reactive,onMounted, watch} from 'vue'
 import axios from 'axios'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -268,13 +268,27 @@ const search = ref('')
 const tableData = ref([])
 
 // 过滤后的数据
-const filterTableData = computed(() =>
-  tableData.value.filter(
-    (data) =>
-      !search.value ||
-      data.name.toLowerCase().includes(search.value.toLowerCase())
-  )
-)
+let timer = null
+
+watch(search, (newVal) => {
+  // 每次 search 改变，都先 clear 掉上一次未执行的定时器
+  const newSerch = new URLSearchParams({
+  pageSize: pageSize4.value,
+  pageNum:  currentPage4.value,
+  userType: 'admin',
+  userName: newVal
+});
+  clearTimeout(timer)
+  // 300ms 后再真正发请求
+  timer = setTimeout(async () => {
+    try {
+      const res = await axios.post('/csxyb_server_war/FindUserServlet', newSerch)
+      tableData.value = res.data.data
+    } catch (e) {
+      console.error('搜索请求出错：', e)
+    }
+  }, 300)
+})
 const userData=reactive({
     userId:'',
     userName:'',

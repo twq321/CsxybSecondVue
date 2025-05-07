@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <h1 style="padding: 0;margin:0">普通用户管理界面</h1> 
-    <el-table :data="filterTableData" style="width: 100%">
+    <el-table :data="tableData" style="width: 100%">
       <el-table-column label="ID" prop="userId" />
       <el-table-column label="头像">
         <template #default="scope">
@@ -19,7 +19,7 @@
           <el-input
               v-model="search"
               style="min-width: 270px"
-              placeholder="请输入关键词..."
+              placeholder="请输入用户名..."
               class="input-with-select"
                     >
                 <template #prepend>
@@ -143,7 +143,7 @@
   </div> 
 </template>
 <script setup>
-import { computed, ref, reactive,onMounted} from 'vue'
+import {  ref, reactive,onMounted,watch} from 'vue'
 import axios from 'axios'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
@@ -232,7 +232,7 @@ const changePageSize = new URLSearchParams({
   pageSize: newSize,
   pageNum:  currentPage4.value,
   userType: 'regular',
-  userName: ''
+  userName: search.value
 });
 axios.post('/csxyb_server_war/FindUserServlet',changePageSize)
 .then(res=>{
@@ -249,7 +249,7 @@ const changePageNum = new URLSearchParams({
   pageSize: pageSize4.value,
   pageNum:  newPage,
   userType: 'regular',
-  userName: ''
+  userName: search.value
 });
 axios.post('/csxyb_server_war/FindUserServlet',changePageNum)
 .then(res=>{
@@ -268,13 +268,36 @@ const search = ref('')
 const tableData = ref([])
 
 // 过滤后的数据
-const filterTableData = computed(() =>
-  tableData.value.filter(
-    (data) =>
-      !search.value ||
-      data.userName.toLowerCase().includes(search.value.toLowerCase())
-  )
-)
+let timer = null
+
+watch(search, (newVal) => {
+  // 每次 search 改变，都先 clear 掉上一次未执行的定时器
+  const newSerch = new URLSearchParams({
+  pageSize: pageSize4.value,
+  pageNum:  currentPage4.value,
+  userType: 'regular',
+  userName: newVal
+});
+  clearTimeout(timer)
+  // 300ms 后再真正发请求
+  timer = setTimeout(async () => {
+    try {
+  const resTotal = await axios.get('/csxyb_server_war/GetUserTotalSizeServlet',{
+      params: {
+        userType: 'regular',
+        userName:search.value
+      }
+    })
+    const resUserList=await axios.post('/csxyb_server_war/FindUserServlet',newSerch)
+  total.value=Number(resTotal.data.totalSize)
+  console.log('页面加载时获取的数据:', total.value)
+  tableData.value=resUserList.data.data
+  console.log(tableData.value)
+} catch (err) {
+  console.error('获取数据失败:', err)
+}
+  }, 300)
+})
 const userData=reactive({
     userId:'',
     userName:'',
