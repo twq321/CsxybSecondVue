@@ -134,6 +134,7 @@
     </el-form>
 
     <template #footer>
+      <el-button @click="goToGoods(userData.userId)">该用户的商品</el-button>
       <el-button @click="dialogVisible = false">关闭</el-button>
       <el-button v-if="!isEditing" @click="isEditing = true" style="background-color: hwb(6 11% 18%);color:#fff">编辑</el-button>
       <el-button v-else type="primary" @click="handleSave">提交</el-button>
@@ -156,6 +157,10 @@ const pageSize4 = ref(10)
 const size = ref('default') // or 'small'
 const disabled = ref(false)
 const background = ref(true)
+const goToGoods = (userId) => {
+  // router.push(`/goods/${userId}`)
+  console.log(userId)
+}
 const params = new URLSearchParams({
   pageSize: pageSize4.value,
   pageNum:  currentPage4.value,
@@ -267,7 +272,7 @@ const filterTableData = computed(() =>
   tableData.value.filter(
     (data) =>
       !search.value ||
-      data.name.toLowerCase().includes(search.value.toLowerCase())
+      data.userName.toLowerCase().includes(search.value.toLowerCase())
   )
 )
 const userData=reactive({

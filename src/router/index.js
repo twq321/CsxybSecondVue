@@ -30,9 +30,11 @@ const routes = [
             component:UserList
           },
           {
-            path:'goodsList',
-            name:'goodsList',
-            component:GoodsList
+            path: '/goodsList/:category?',
+            name: 'GoodsList',
+            component: GoodsList,
+            // 默认 category 为 all
+            props: true  
           },
           {
             path:'admin',

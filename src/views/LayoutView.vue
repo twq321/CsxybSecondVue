@@ -2,13 +2,13 @@
   <div class="common-layout">
     <el-container style="height: 100%">
       <el-header class="myheader">
-        <div style="background-color: rgba(0,0,0,0.2);width:80px;">
-          软件图标
+        <div style="background-color: rgba(0,0,0,0.2);">
+          长师校园帮后台管理系统
         </div>
-        <div style="background-color: rgba(0,0,0,0.2);width:80px;">
+        <div style="background-color: rgba(0,0,0,0.2);">
           管理界面
         </div>
-        <div style="background-color: rgba(0,0,0,0.2);width:80px;">
+        <div style="background-color: rgba(0,0,0,0.2);">
           数据分析
         </div>
         
@@ -207,7 +207,7 @@
               </template>
               <el-menu-item-group>
                 <el-menu-item index="/admin">管理员</el-menu-item>
-                <el-menu-item index="userList">普通用户</el-menu-item>
+                <el-menu-item index="/userList">普通用户</el-menu-item>
               </el-menu-item-group>
             </el-sub-menu>
             <el-sub-menu index="2">
@@ -218,11 +218,11 @@
                 <span>商品列表</span>
               </template>
               <el-menu-item-group>
-                <el-menu-item index="2-1">全部</el-menu-item>
-                <el-menu-item index="2-2">数码</el-menu-item>
-                <el-menu-item index="2-3">电器</el-menu-item>
-                <el-menu-item index="2-4">书籍</el-menu-item>
-                <el-menu-item index="2-5">生活类</el-menu-item>
+                <el-menu-item index="/goodsList/all">全部</el-menu-item>
+                <el-menu-item index="/goodsList/shuma">数码</el-menu-item>
+                <el-menu-item index="/goodsList/dianqi">电器</el-menu-item>
+                <el-menu-item index="/goodsList/book">书籍</el-menu-item>
+                <el-menu-item index="/goodsList/live">生活类</el-menu-item>
               </el-menu-item-group>
             </el-sub-menu>
             <el-sub-menu index="3">
@@ -282,10 +282,15 @@ const Changeform= reactive({
     new: '',
     confirm: '',
   },
-  name: {
+  userName: {
     value: '',
   },
-  // 可以继续添加其他表单模型
+  userTxImg:{
+    value:''
+  },
+  phoneNumber:{
+  
+  }
 })
 
 // 处理下拉命令，打开对应对话框
