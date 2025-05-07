@@ -4,6 +4,20 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script>
+      ;(function() {
+        const re = /ResizeObserver loop completed with undelivered notifications/;
+        window.addEventListener('error', e => {
+          if (e.message && re.test(e.message)) {
+            // 阻止 overlay 弹窗
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            // 如需调试可打开下面一行
+            // console.warn('[ResizeObserver]', e.message);
+          }
+        }, true);
+      })();
+    </script>
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
