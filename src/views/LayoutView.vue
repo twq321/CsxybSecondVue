@@ -26,6 +26,7 @@
                 <el-dropdown-item command="changePhone">修改/注册手机号</el-dropdown-item>
                 <el-dropdown-item command="switchAccount">切换账户</el-dropdown-item>
                 <el-dropdown-item command="deleteAccount">注销账号</el-dropdown-item>
+                <el-dropdown-item command="/TestC">语音注册</el-dropdown-item>
                 <el-dropdown-item command="logout">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -190,7 +191,6 @@
             <el-button type="primary" @click="submitChangeName">确定</el-button>
           </template>
         </el-dialog>
-
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -252,6 +252,7 @@
 </template>
 
 <script setup>
+import router from '@/router'
 import { ref, onMounted, onBeforeUnmount, nextTick,reactive } from 'vue'
 import { useStore } from 'vuex'
 
@@ -271,6 +272,7 @@ const dialogs = reactive({
   switchAccount: false,
   deleteAccount: false,
   logout: false,
+  yiyun:false
 })
 
 // 表单数据
@@ -296,6 +298,7 @@ function handleCommand(command) {
   if (command in dialogs) {
     dialogs[command] = true
   } else {
+    router.push(command)
     console.warn('未知命令：', command)
   }
 }

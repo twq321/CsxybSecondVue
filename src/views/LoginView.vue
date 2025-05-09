@@ -1,24 +1,32 @@
 <template>
-  <div class="login-form">
-    <el-form
-    ref="loginFormRef"
-    :model="loginForm"
-    :rules="rules"
-    label-width="80px"
-  >
-    <el-form-item label="账号" prop="login_name">
-      <el-input v-model="loginForm.login_name" autocomplete="off" />
-    </el-form-item>
+  <div class="bj">
+    <div class="login-form">
+      <el-form
+      ref="loginFormRef"
+      :model="loginForm"
+      :rules="rules"
+      label-width="80px"
+    >
+      <el-form-item label="账号" prop="login_name">
+        <el-input v-model="loginForm.login_name" autocomplete="off" />
+      </el-form-item>
+  
+      <el-form-item label="密码" prop="pwd">
+        <el-input v-model="loginForm.pwd" type="password" autocomplete="off" />
+      </el-form-item>
+  
+      <el-form-item>
+        <el-button type="primary" @click="submitForm">登录</el-button>
+        <el-button @click="resetForm">重置</el-button>
 
-    <el-form-item label="密码" prop="pwd">
-      <el-input v-model="loginForm.pwd" type="password" autocomplete="off" />
-    </el-form-item>
-
-    <el-form-item>
-      <el-button type="primary" @click="submitForm">登录</el-button>
-      <el-button @click="resetForm">重置</el-button>
-    </el-form-item>
-  </el-form>
+        <el-button @click="gotod">其他登录方式</el-button>
+      </el-form-item>
+    </el-form>
+    <div>
+      <router-view></router-view>
+    </div>
+    </div>
+    
   </div>
   
 </template>
@@ -39,7 +47,9 @@ const loginForm = reactive({
   login_name: '',
   pwd: ''
 })
-
+const gotod=()=>{
+  router.push('/TestD')
+}
 // 校验规则
 const rules = {
   login_name: [{ required: true, message: '请输入账号', trigger: 'blur' }],
@@ -93,6 +103,13 @@ const resetForm = () => {
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
     width: 30vw;
+  }
+  .bj{
+    height:100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   </style>
   

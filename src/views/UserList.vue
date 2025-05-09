@@ -6,7 +6,7 @@
       <el-table-column label="头像">
         <template #default="scope">
           <img
-            :src="'http://csxybnode.tangwanqing.top:30000'+scope.row.avatar"
+            :src="'http://100.125.55.196:3000'+scope.row.avatar"
             alt="头像"
             style="width: 40px; height: 40px; border-radius: 50%;"
           />
@@ -59,7 +59,7 @@
     <el-pagination
     v-model:current-page="currentPage4"
     v-model:page-size="pageSize4"
-    :page-sizes="[5, 10, 15, 20,25]"
+    :page-sizes="[6, 8, 10, 12,15]"
     :size="size"
     :disabled="disabled"
     :background="background"
@@ -77,7 +77,7 @@
   >
     <el-form :model="userData" label-width="100px">
       <el-form-item label="头像" class="avatar-item">
-        <el-avatar :src="'http://csxybnode.tangwanqing.top:30000'+userData.userAvatar" size="large" />
+        <el-avatar :src="'http://100.125.55.196:3000'+userData.userAvatar" size="large" />
       </el-form-item>
       <el-form-item label="用户ID">
         <el-input v-model="userData.userId" disabled />
@@ -95,7 +95,7 @@
       </el-form-item>
 
       <el-form-item label="登录账号">
-        <el-input v-model="userData.geXin" :disabled="!isEditing" />
+        <el-input v-model="userData.loginText" :disabled="!isEditing" />
       </el-form-item>
       <el-form-item label="密码">
         <el-input v-model="userData.password" :disabled="!isEditing" />
@@ -123,7 +123,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="个性签名">
-        <el-input v-model="userData.geXin" :disabled="!isEditing" />
+        <el-input v-model="userData.remark" :disabled="!isEditing" />
       </el-form-item>
       <el-form-item label="粉丝">
         <el-input v-model="userData.Fans" disabled />
@@ -153,7 +153,7 @@ const total=ref(0)
 const dialogVisible = ref(false)
 const isEditing = ref(false)
 const currentPage4 = ref(1)
-const pageSize4 = ref(10)
+const pageSize4 = ref(6)
 const size = ref('default') // or 'small'
 const disabled = ref(false)
 const background = ref(true)
@@ -189,12 +189,41 @@ const handleClose = (done) => {
 }
 const handleSave = () => {
   console.log('保存的用户数据：', userData)
+  const userDataform=new URLSearchParams(userData)
+  const Changestatusform=new URLSearchParams({userId:userData.userId,userStatus:userData.status})
+  axios.post('/csxyb_server_war/UserStatusUpdateServlet',Changestatusform)
+  .then(res=>{
+    if(res.data.status==200){
+      alert(`更新用户${userData.userName}的状态成功！`)
+    }
+  })
+  .catch(err=>{
+    console.log(err)
+  })
+  axios.post('/csxyb_server_war/UserUpdateServlet',userDataform)
+  .then(res=>{
+      if(res.data.status){
+        alert('更新成功！')
+      }
+  })
+  .catch(err=>{
+    console.log(err)
+  })
   ElMessage.success('保存成功')
   dialogVisible.value = false
   isEditing.value = false
 }
 const handleStatusChange=(userChangestatus)=>{
   console.log(userChangestatus)
+  const Changestatusform=new URLSearchParams({userId:userChangestatus.userId,userStatus:userChangestatus.status})
+  axios.post('/csxyb_server_war/UserStatusUpdateServlet',Changestatusform)
+  .then(res=>{
+    if(res.data.status==200){
+      alert(`更新用户${userChangestatus.userName}的状态成功！`)
+    }
+  }).catch(err=>{
+    console.log(err)
+  })
 }
 const optionsType = [
   {
@@ -305,12 +334,13 @@ const userData=reactive({
     status:'',
     loginText:'',
     email:'',
-    geXin:'',
+    remark:'',
     password:'',
     phoneNumber:'',
     Fans:'',
     Guanzhu:'',
-    type:''
+    type:'',
+    wx:''
   })
 // 编辑操作
 const handleEdit = (index, row) => {
@@ -321,7 +351,7 @@ const handleEdit = (index, row) => {
   userData.status = row.status
   userData.loginText = row.loginText
   userData.email = row.email
-  userData.geXin = row.remark
+  userData.remark = row.remark
   userData.password = row.password
   userData.phoneNumber  = row.phoneNumber
   userData.Fans = row.fans
@@ -334,6 +364,13 @@ const handleEdit = (index, row) => {
 // 删除操作
 const handleDelete = (index, row) => {
   console.log(index, row)
+  const userId=new URLSearchParams({userId:row.userId})
+  axios.post('/csxyb_server_war/UserUnRegisterServlet',userId)
+  .then(res=>{
+    console.log(res)
+  }).catch(err=>{
+    console.log(err)
+  })
 }
 </script>
 

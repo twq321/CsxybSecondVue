@@ -2,9 +2,9 @@
   <div class="goods-list">
     <h2 style="margin: 0;margin-bottom:10px">{{ labels[category] }}</h2>
     <el-input
-      v-model="serchId"
+      v-model="serch"
       style="max-width: 600px"
-      placeholder="请输入用户ID...."
+      placeholder="请输入关键词...."
       class="input-with-select"
     >
       <template #prepend>
@@ -13,6 +13,7 @@
       <template #append>
         <el-select v-model="select" placeholder="筛选" style="width: 115px">
           <el-option label="用户ID" value="1" />
+          <el-option label="商品名称" value="2" />
         </el-select>
       </template>
     </el-input>
@@ -30,7 +31,7 @@
             <span class="goods-title">{{ item.goodsText }}</span>
           </template>
           <img
-            :src="`http://csxybnode.tangwanqing.top:30000/images/goodsTop/${item.goodsTopImg}`"
+            :src="`http://100.125.55.196:3000/${item.goodsTopImg}`"
             class="goods-img"
             alt="商品图"
           />
@@ -44,8 +45,18 @@
             type="danger"
             size="mini"
             @click="onViolation(item)"
+            v-if="item.status==1"
           >
             下架
+          </el-button>
+          <el-button
+            class="violation-btn"
+            type="danger"
+            size="mini"
+            disabled
+            v-else
+          >
+            已下架
           </el-button>
         </el-card>
       </el-col>
@@ -71,7 +82,7 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 import { Search } from '@element-plus/icons-vue'
 
-const serchId=ref('')
+
 const total = ref(0)
 const currentPage4 = ref(1)
 const pageSize4 = ref(4)
@@ -79,18 +90,18 @@ const size = ref('default')
 const disabled = ref(false)
 const background = ref(true)
 const list = ref([])
-
+const serch=ref('')
+const select=ref('')
 // 请求初始数据
 onMounted(async () => {
   try {
     const resTotal = await axios.get('/csxyb_server_war/GetGoodsTotalSizeServlet', {
-      params: { userType: 'regular' }
+      params: { goodsName:serch.value }
     })
     const params = new URLSearchParams({
       pageSize: pageSize4.value,
       pageNum: currentPage4.value,
-      userType: 'regular',
-      userName: ''
+      goodsName:serch.value
     })
     const resUserList = await axios.post('/csxyb_server_war/FindGoodsServlet', params)
     total.value = Number(resTotal.data.totalSize)
@@ -103,10 +114,6 @@ onMounted(async () => {
 // 路由参数与分类标签
 const route = useRoute()
 const category = ref(route.params.category ?? 'all')
-watch(
-  () => route.params.category,
-  val => { category.value = val ?? 'all' }
-)
 const labels = {
   all: '全部',
   shuma: '数码',
@@ -114,14 +121,89 @@ const labels = {
   book: '书籍',
   live: '生活类'
 }
+watch(
+  () => route.params.category,
+  val => { 
+  category.value = val ?? 'all'
+  const changeType = new URLSearchParams({
+    pageSize: pageSize4.value,
+    pageNum: currentPage4.value,
+    goodsType: labels[val],
+    goodsName: serch.value
+  })
+  if(val!="all"){
+    axios.get('/csxyb_server_war/GetGoodsTotalSizeByTypeServlet',{
+      params: { goodsName:serch.value,goodsType:labels[val] }
+    })
+  .then(res=>{
+    total.value = Number(res.data.totalSize)
+  })
+  .catch(err=>{
+    console.log(err)
+  })
+  axios.post('/csxyb_server_war/FindGoodsByTypeServlet', changeType)
+    .then(res => { list.value = res.data.data })
+    .catch(err => { console.error(err) })
+  }else{
+    axios.get('/csxyb_server_war/GetGoodsTotalSizeServlet', {
+      params: { goodsName:serch.value }
+    }).then(res=>{
+      total.value = Number(res.data.totalSize)
+    }).catch(err=>{
+      console.log(err)
+    })
+    const params2 = new URLSearchParams({
+      pageSize: pageSize4.value,
+      pageNum: currentPage4.value,
+      goodsName:serch.value
+    })
+    axios.post('/csxyb_server_war/FindGoodsServlet', params2)
+    .then(res=>{
+      list.value = res.data.data
+    })
+    .catch(err=>{
+      console.log(err)
+    })
+  }
+  
+   }
+)
+let timer = null
+watch(serch, (newVal) => {
+  // 每次 search 改变，都先 clear 掉上一次未执行的定时器
+  const newSerch = new URLSearchParams({
+  pageSize: pageSize4.value,
+  pageNum:  currentPage4.value,
+  goodsName: newVal
+});
+  clearTimeout(timer)
+  // 300ms 后再真正发请求
+  timer = setTimeout(async () => {
+    try {
+  const resTotal = await axios.get('/csxyb_server_war/GetGoodsTotalSizeServlet',{
+      params: {
+        goodsName: newVal
+      }
+    })
+    const resGoodsList=await axios.post('/csxyb_server_war/FindGoodsServlet',newSerch)
+  total.value=Number(resTotal.data.totalSize)
+  console.log('页面加载时获取的数据:', total.value)
+  list.value=resGoodsList.data.data
+  console.log(list.value)
+} catch (err) {
+  console.error('获取数据失败:', err)
+}
+  }, 300)
+})
+
 
 // 分页逻辑
 const handleSizeChange = (newSize) => {
   const changePageSize = new URLSearchParams({
     pageSize: newSize,
     pageNum: currentPage4.value,
-    userType: 'regular',
-    userName: ''
+    goodsName: serch.value,
+    goodsType: category.value
   })
   axios.post('/csxyb_server_war/FindGoodsServlet', changePageSize)
     .then(res => { list.value = res.data.data })
@@ -132,8 +214,8 @@ const handleCurrentChange = (newPage) => {
   const changePageNum = new URLSearchParams({
     pageSize: pageSize4.value,
     pageNum: newPage,
-    userType: 'regular',
-    userName: ''
+    goodsName: serch.value,
+    goodsType: category.value
   })
   axios.post('/csxyb_server_war/FindGoodsServlet', changePageNum)
     .then(res => { list.value = res.data.data })
@@ -144,6 +226,7 @@ const handleCurrentChange = (newPage) => {
 const onViolation = (item) => {
   // 弹窗或接口调用等业务逻辑
   console.log('标记违规商品：', item)
+  item.status=0
   // axios.post('/api/markViolation', { id: item.id })...
 }
 </script>

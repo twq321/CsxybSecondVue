@@ -5,14 +5,26 @@ import UserList from '@/views/UserList.vue'
 import GoodsList from '@/views/GoodsList.vue'
 import IndexView from '@/views/IndexView.vue'
 import AdminList from '@/views/AdminList.vue'
-import store from '@/store'
+// import store from '@/store'
+import TestC from '@/views/TestC.vue'
+import TestD from '@/views/TestD.vue'
 const routes = [
 
    {
     path: '/login',
     name: 'login',
-    component: LoginView
+    component: LoginView,
   },
+ {
+        path: '/TestD',
+        name: 'TestD',
+        component: TestD,
+      },
+      {
+        path: '/TestC',
+        name: 'TestC',
+        component: TestC,
+      },
   {
     path: '/',
     name: 'home',
@@ -61,18 +73,18 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
-router.beforeEach((to, from, next) =>{ 
-  console.log(store.getters['userData/getData']); 
-    if(!store.getters['userData/getData']){
-       if(to.path=='/login') { 
-        next(); 
-        return 
-      } else{
-        next("/login") 
-      }
+// router.beforeEach((to, from, next) =>{ 
+//   console.log(store.getters['userData/getData']); 
+//     if(!store.getters['userData/getData']){
+//        if(to.path=='/login') { 
+//         next(); 
+//         return 
+//       } else{
+//         next("/login") 
+//       }
       
-    }else{ 
-      next()
-     } 
-    })
+//     }else{ 
+//       next()
+//      } 
+//     })
 export default router
